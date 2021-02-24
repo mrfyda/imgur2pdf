@@ -53,7 +53,7 @@ def calculate_image_scaling(width, height):
 
 
 @click.command()
-@click.version_option(version="0.1.1")
+@click.version_option(version="0.2.0")
 @click.argument("album_id")
 def imgur2pdf(album_id):
     """
@@ -92,12 +92,16 @@ def imgur2pdf(album_id):
             pages.append(image.convert("RGB"))
 
     album_data = client.get_album(album_id)
-    album_filename = album_data.title.replace(" ", "_") + ".pdf"
+    album_filename = (
+        "".join(filter(str.isalnum, album_data.title)) if album_data.title else album_id
+    ) + ".pdf"
 
     first, rest = pages[0], pages[1:]
 
     first.save(
-        album_filename, save_all=True, append_images=rest,
+        album_filename,
+        save_all=True,
+        append_images=rest,
     )
 
     click.echo("PDF created: " + str(album_filename))
